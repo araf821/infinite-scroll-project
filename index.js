@@ -1,30 +1,44 @@
 // Getting some HTML components
 const imageContainer = document.getElementById("image-container");
 const loader = document.getElementById("loader");
+const errorMessage = document.getElementById("error");
 
 let photos = [];
 let totalPhotos = 0; // This will contain the length of photos[]
 let photosLoaded = 0; // This will keep track of how many photos were loaded in the page
 let photosReady = false; // This becomes true when all the images have been loaded.
 
+const initialPhotoCount = 5;
+let photoCount = 0;
 // Unsplash API
-const photoCount = 10;
 const apiKey = "APxFL1KASrlTuMGqxwnRl4hK1Ry8FETodFYFJkgraN8";
-const apiURL = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${photoCount}`;
+let apiURL = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${initialPhotoCount}`;
 
-// A custom function to make our code less repeated
-function setAttributes(element, attributes) {
-  for (const key in attributes) {
-    element.setAttribute(key, attributes[key]);
-  }
-}
+// Why do we have an initial photo count?
+//    Initially, we want to show the loading wheel only when loading a few photos,
+//    this ensures that people with slower screen won't be seeing the loading wheel
+//    go on for a long time. With the loadMore() function, images will continue to
+//    load in the background after the loading wheel goes away.
 
 function imageLoaded() {
   photosLoaded++; // Every time an image is loaded
   if (photosLoaded === totalPhotos) {
     photosReady = true;
     loader.hidden = true;
+    loadMorePhotos();
   } // Set to true once all photos are loaded
+}
+
+function loadMorePhotos() {
+  photoCount = 20;
+  let apiURL = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${photoCount}`;
+}
+
+// A custom function to make our code less repeated
+function setAttributes(element, attributes) {
+  for (const key in attributes) {
+    element.setAttribute(key, attributes[key]);
+  }
 }
 
 function displayPhotos() {
@@ -76,6 +90,8 @@ async function getPhotos() {
     displayPhotos();
   } catch (err) {
     console.log(err);
+    loader.hidden = true;
+    errorMessage.hidden = false;
   }
 }
 
